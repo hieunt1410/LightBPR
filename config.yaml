@@ -1,0 +1,64 @@
+clothing:
+  data_path: './datasets'
+  batch_size_train: 128
+  batch_size_test: 128
+  topk: [1, 2, 3, 4]
+  neg_num: 1
+  aug_type: "ED"
+  ed_interval: 1
+  embedding_sizes: [64]
+  num_layerss: [1]
+  item_level_ratios: [0.0] 
+  bundle_level_ratios: [0.0]
+  bundle_agg_ratios: [0.0] 
+  lrs: [1.0e-3]
+  l2_regs: [1.0e-4]
+  epochs: 50
+  test_interval: 1
+  sep: "\t"
+  file_type: ".txt"
+  topk_valid: 3
+
+
+electronic:
+  data_path: './datasets'
+  batch_size_train: 128
+  batch_size_test: 128
+  topk: [1, 2, 3, 4]
+  neg_num: 1
+  aug_type: "ED"
+  ed_interval: 1
+  embedding_sizes: [64]
+  num_layerss: [1]
+  item_level_ratios: [0.0] 
+  bundle_level_ratios: [0.0]
+  bundle_agg_ratios: [0.0] 
+  lrs: [1.0e-3]
+  l2_regs: [1.0e-4]
+  epochs: 20
+  test_interval: 5
+  sep: "\t"
+  file_type: ".txt"
+  topk_valid: 3
+
+
+food:
+  data_path: './datasets'
+  batch_size_train: 128
+  batch_size_test: 128
+  topk: [1, 2, 3, 4, 5]
+  neg_num: 1
+  aug_type: "ED"
+  ed_interval: 1
+  embedding_sizes: [64]
+  num_layerss: [1]
+  item_level_ratios: [0.0] 
+  bundle_level_ratios: [0.0]
+  bundle_agg_ratios: [0.0] 
+  lrs: [1.0e-3]
+  l2_regs: [1.0e-4]
+  epochs: 20
+  test_interval: 5
+  sep: "\t"
+  file_type: ".txt"
+  topk_valid: 3

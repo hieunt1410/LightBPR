@@ -1,0 +1,33 @@
+{'data_path': './datasets', 'batch_size_train': 128, 'batch_size_test': 128, 'topk': [1, 2, 3, 4], 'neg_num': 1, 'aug_type': 'ED', 'ed_interval': 1, 'embedding_sizes': [64], 'num_layerss': [1], 'item_level_ratios': [0.0], 'bundle_level_ratios': [0.0], 'bundle_agg_ratios': [0.0], 'lrs': [0.001], 'l2_regs': [0.0001], 'epochs': 20, 'test_interval': 5, 'sep': '\t', 'file_type': '.txt', 'topk_valid': 3, 'dataset': 'electronic', 'model': 'ZeRe', 'gpu': '0', 'info': '', 'num_users': 888, 'num_bundles': 1750, 'num_items': 3499, 'device': device(type='cpu'), 'l2_reg': 0.0001, 'embedding_size': 64, 'item_level_ratio': 0.0, 'bundle_level_ratio': 0.0, 'bundle_agg_ratio': 0.0}
+2024-03-05 22:18:19, Top_1, Val:  recall: 0.515882, ndcg: 0.590588, precision: 0.590588
+2024-03-05 22:18:19, Top_1, Test: recall: 0.619644, ndcg: 0.833992, precision: 0.833992
+2024-03-05 22:18:19, Top_2, Val:  recall: 0.845882, ndcg: 0.755372, precision: 0.498824
+2024-03-05 22:18:19, Top_2, Test: recall: 0.888497, ndcg: 0.896392, precision: 0.661397
+2024-03-05 22:18:19, Top_3, Val:  recall: 0.951176, ndcg: 0.808280, precision: 0.384314
+2024-03-05 22:18:19, Top_3, Test: recall: 0.967583, ndcg: 0.922927, precision: 0.505051
+2024-03-05 22:18:19, Top_4, Val:  recall: 0.984706, ndcg: 0.825309, precision: 0.302353
+2024-03-05 22:18:19, Top_4, Test: recall: 0.990893, ndcg: 0.931670, precision: 0.395586
+2024-03-05 22:18:19, Best in epoch 0, TOP 1: REC_V=0.51588, NDCG_V=0.59059, PRE_V: 0.83399
+2024-03-05 22:18:19, Best in epoch 0, TOP 1: REC_T=0.61964, NDCG_T=0.83399, PRE_T: 0.83399
+2024-03-05 22:18:19, Best in epoch 0, TOP 2: REC_V=0.84588, NDCG_V=0.75537, PRE_V: 0.66140
+2024-03-05 22:18:19, Best in epoch 0, TOP 2: REC_T=0.88850, NDCG_T=0.89639, PRE_T: 0.66140
+2024-03-05 22:18:19, Best in epoch 0, TOP 3: REC_V=0.95118, NDCG_V=0.80828, PRE_V: 0.50505
+2024-03-05 22:18:19, Best in epoch 0, TOP 3: REC_T=0.96758, NDCG_T=0.92293, PRE_T: 0.50505
+2024-03-05 22:18:19, Best in epoch 0, TOP 4: REC_V=0.98471, NDCG_V=0.82531, PRE_V: 0.39559
+2024-03-05 22:18:19, Best in epoch 0, TOP 4: REC_T=0.99089, NDCG_T=0.93167, PRE_T: 0.39559
+2024-03-05 22:18:22, Top_1, Val:  recall: 0.545294, ndcg: 0.621176, precision: 0.621176
+2024-03-05 22:18:22, Top_1, Test: recall: 0.602955, ndcg: 0.816864, precision: 0.816864
+2024-03-05 22:18:22, Top_2, Val:  recall: 0.841176, ndcg: 0.761956, precision: 0.497647
+2024-03-05 22:18:22, Top_2, Test: recall: 0.885203, ndcg: 0.888384, precision: 0.659420
+2024-03-05 22:18:22, Top_3, Val:  recall: 0.946863, ndcg: 0.816321, precision: 0.381961
+2024-03-05 22:18:22, Top_3, Test: recall: 0.970701, ndcg: 0.918092, precision: 0.506368
+2024-03-05 22:18:22, Top_4, Val:  recall: 0.985098, ndcg: 0.835270, precision: 0.302353
+2024-03-05 22:18:22, Top_4, Test: recall: 0.990762, ndcg: 0.925398, precision: 0.395586
+2024-03-05 22:18:26, Top_1, Val:  recall: 0.534314, ndcg: 0.607059, precision: 0.607059
+2024-03-05 22:18:26, Top_1, Test: recall: 0.598234, ndcg: 0.811594, precision: 0.811594
+2024-03-05 22:18:26, Top_2, Val:  recall: 0.847451, ndcg: 0.762207, precision: 0.501176
+2024-03-05 22:18:26, Top_2, Test: recall: 0.878835, ndcg: 0.882228, precision: 0.654150
+2024-03-05 22:18:26, Top_3, Val:  recall: 0.944118, ndcg: 0.813417, precision: 0.382745
+2024-03-05 22:18:26, Top_3, Test: recall: 0.967407, ndcg: 0.911824, precision: 0.504172
+2024-03-05 22:18:26, Top_4, Val:  recall: 0.983333, ndcg: 0.831213, precision: 0.301765
+2024-03-05 22:18:26, Top_4, Test: recall: 0.991750, ndcg: 0.922528, precision: 0.395586

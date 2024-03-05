@@ -1,0 +1,43 @@
+clothing:
+  data_path: './datasets'
+  batch_size_train: 128
+  batch_size_test: 128
+  embedding_sizes: 64
+  lrs: 1.0e-3
+  l2_regs: 1.0e-4
+  epochs: 20
+  test_interval: 1
+  bundle_size: 10
+  sep: "\t"
+  file_type: ".txt"
+  num_layer: 1
+
+
+electronic:
+  data_path: './datasets'
+  batch_size_train: 128
+  batch_size_test: 128
+  embedding_sizes: 64
+  lrs: 1.0e-3
+  l2_regs: 1.0e-4
+  epochs: 20
+  test_interval: 1
+  bundle_size: 10
+  sep: "\t"
+  file_type: ".txt"
+  num_layer: 1
+
+
+food:
+  data_path: './datasets'
+  batch_size_train: 128
+  batch_size_test: 128
+  embedding_sizes: 64
+  lrs: 1.0e-3
+  l2_regs: 1.0e-4
+  epochs: 20
+  test_interval: 1
+  bundle_size: 10
+  sep: "\t"
+  file_type: ".txt"
+  num_layer: 1
