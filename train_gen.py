@@ -1,4 +1,3 @@
-import os
 from argparse import ArgumentParser
 
 import yaml
@@ -10,7 +9,7 @@ from utility import *
 
 
 def load_config(dataset):
-    f = open('gen.yaml')
+    f = open('configs/gen.yaml')
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     configs = yaml.safe_load(f)
     config = configs[dataset]
@@ -54,38 +53,16 @@ def train_gen_bundle(model, optimizer, dataloader, conf):
     torch.save(res_bundle, os.path.join(conf['data_path'], conf['dataset'], 'bundle.pt'))
 
 
-def recall(pred, gdtruth):
-    pass
-
-
-def ndcg(pred, gdtruth):
-    pass
-
-
-def precision(pred, gd_truth):
-    # pred: list of bundle indices # ex : [[0,1,2], [3,4], ...]
-    # gdtruth: one-hot of each bundle in sparse type # ex [[1,0,0,1],[1,1,0,0],...]
-    tp = 0
-    num_item = gd_truth.shape[1]
-    for i in gd_truth:
-        for j in pred:
-            # print('j:', j)
-            j = torch.sparse_coo_tensor(indices=torch.tensor(np.array([j])),
-                                        values=torch.ones(len(j)),
-                                        size=(num_item,))
-            # print('j sparse:', j)
-            if torch.sum(torch.abs(i - j)) == 0:
-                tp += 1
-    return tp / len(pred)
-
-
 if __name__ == '__main__':
+    torch.manual_seed(2023)
+    np.random.seed(2023)
+
     args = get_arg()
     conf = load_config(args.dataset)
     dataset = Datasets(conf)
+    item_feat = torch.load(f'datasets/{args.dataset}/self_trained_feature.pt', )
 
-    item_feat = torch.load(f'datasets/{args.dataset}/pretrain_feature.pt')
     model = BunGen(item_feat, conf, dataset.iui_graph).to(conf['device'])
-    optimizer = Adam(model.parameters())
+    optimizer = Adam(params=model.parameters())
 
     train_gen_bundle(model, optimizer, dataset.item_item_loader, conf)

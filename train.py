@@ -34,7 +34,7 @@ def get_cmd():
 
 
 def main():
-    conf = yaml.safe_load(open("./config.yaml"))
+    conf = yaml.safe_load(open("configs/rec.yaml"))
     print("load config file done!")
 
     paras = get_cmd().__dict__

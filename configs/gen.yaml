@@ -5,7 +5,7 @@ clothing:
   embedding_sizes: 64
   lrs: 1.0e-3
   l2_regs: 1.0e-4
-  epochs: 20
+  epochs: 30
   test_interval: 1
   bundle_size: 10
   sep: "\t"
@@ -20,7 +20,7 @@ electronic:
   embedding_sizes: 64
   lrs: 1.0e-3
   l2_regs: 1.0e-4
-  epochs: 20
+  epochs: 30
   test_interval: 1
   bundle_size: 10
   sep: "\t"
@@ -35,7 +35,7 @@ food:
   embedding_sizes: 64
   lrs: 1.0e-3
   l2_regs: 1.0e-4
-  epochs: 20
+  epochs: 30
   test_interval: 1
   bundle_size: 10
   sep: "\t"

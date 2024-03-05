@@ -290,7 +290,7 @@ class ZeRe(nn.Module):
         scores = torch.mm(users_feature, bundles_feature.t())
         return scores
 
-    @torch.no_grad()
+    # @torch.no_grad()
     def save_check_point(self):
         print('saving feature for bundle generation task!')
         user_feat, item_feat = self.propagate(test=False)
