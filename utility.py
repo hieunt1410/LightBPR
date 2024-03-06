@@ -160,10 +160,10 @@ class Datasets():
             b_i_pairs = list(
                 map(lambda s: tuple(int(i) for i in s[:-1].split(self.sep))[:2], f.readlines()))  # don't get timestamp
 
-        indice = np.array(b_i_pairs, dtype=np.int32)
+        indices = np.array(b_i_pairs, dtype=np.int32)
         values = np.ones(len(b_i_pairs), dtype=np.float32)
         b_i_graph = sp.coo_matrix(
-            (values, (indice[:, 0], indice[:, 1])), shape=(self.num_bundles, self.num_items)).tocsr()
+            (values, (indices[:, 0], indices[:, 1])), shape=(self.num_bundles, self.num_items)).tocsr()
 
         return b_i_graph
 
@@ -171,10 +171,10 @@ class Datasets():
         with open(os.path.join(self.path, self.name, 'user_item' + self.file_type), 'r') as f:
             u_i_pairs = list(map(lambda s: tuple(int(i) for i in s[:-1].split(self.sep))[:2], f.readlines()))
 
-        indice = np.array(u_i_pairs, dtype=np.int32)
+        indices = np.array(u_i_pairs, dtype=np.int32)
         values = np.ones(len(u_i_pairs), dtype=np.float32)
         u_i_graph = sp.coo_matrix(
-            (values, (indice[:, 0], indice[:, 1])), shape=(self.num_users, self.num_items)).tocsr()
+            (values, (indices[:, 0], indices[:, 1])), shape=(self.num_users, self.num_items)).tocsr()
 
         return u_i_pairs, u_i_graph
 
@@ -182,10 +182,10 @@ class Datasets():
         with open(os.path.join(self.path, self.name, 'user_bundle_{}'.format(task) + self.file_type), 'r') as f:
             u_b_pairs = list(map(lambda s: tuple(int(i) for i in s[:-1].split(self.sep))[:2], f.readlines()))
 
-        indice = np.array(u_b_pairs, dtype=np.int32)
+        indices = np.array(u_b_pairs, dtype=np.int32)
         values = np.ones(len(u_b_pairs), dtype=np.float32)
         u_b_graph = sp.coo_matrix(
-            (values, (indice[:, 0], indice[:, 1])), shape=(self.num_users, self.num_bundles)).tocsr()
+            (values, (indices[:, 0], indices[:, 1])), shape=(self.num_users, self.num_bundles)).tocsr()
 
         return u_b_pairs, u_b_graph
 
@@ -214,21 +214,4 @@ if __name__ == '__main__':
         'topk_valid': 3,
     })
 
-    # for i in dataset.item_item_loader:
-    #     print(i)
-    #     break
     print(len(dataset.item_item_loader))
-    # ii_mat = dataset.iui_graph
-    # ui_graph = dataset.ui_graph
-    # print(ii_mat[1933, 1922])
-    # print(ii_mat[1933, 1924])
-    # print(ii_mat[3257, 21])
-    # print(ii_mat[3257, 3696])
-    # for i in dataset.item_train_loader:
-    #     print(i)
-    #     break
-    # print(ui_graph[683, 1933])
-    # print(ui_graph[683, ])
-    # temp = torch.tensor(ii_mat.todense(), dtype=torch.int32)
-    # _, topk1933 = torch.topk(temp, k=10, dim=1)
-    # print(topk1933[1933], _[1933])

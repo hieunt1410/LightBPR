@@ -26,10 +26,10 @@ def get_bi(path="datasets/", dataset="clothing", file_type=".txt", shape=None):
         b_i_pairs = list(
             map(lambda s: tuple(int(i) for i in s[:-1].split("\t"))[:2], f.readlines()))  # don't get timestamp
 
-    indice = np.array(b_i_pairs, dtype=np.int32)
+    indices = np.array(b_i_pairs, dtype=np.int32)
     values = np.ones(len(b_i_pairs), dtype=np.float32)
     b_i_graph = sp.coo_matrix(
-        (values, (indice[:, 0], indice[:, 1])), shape=shape).tocsr()
+        (values, (indices[:, 0], indices[:, 1])), shape=shape).tocsr()
 
     return b_i_graph
 
@@ -69,8 +69,7 @@ def recall(pred_list, gd_list):
     pbar = tqdm(gd_list)
     for i in pbar:
         for j in pred_list:
-            if i == j:
-                tp += 1
+            tp += (i == j)
     return tp / len(gd_list)
 
 
@@ -79,8 +78,7 @@ def precision(pred_list, gd_list):
     pbar = tqdm(gd_list)
     for i in pbar:
         for j in pred_list:
-            if i == j:
-                tp += 1
+            tp += (i == j)
     return tp / len(pred_list)
 
 
