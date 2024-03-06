@@ -29,7 +29,7 @@ def get_arg():
     return args
 
 
-def train_gen_bundle(model, optimizer, dataloader, conf):
+def train_gen_bundle(model, optimizer, dataloader, conf, gt_bundle):
     EPOCH = conf['epochs']
     device = conf['device']
 
@@ -45,16 +45,85 @@ def train_gen_bundle(model, optimizer, dataloader, conf):
             optimizer.step()
             pbar.set_description('Epoch: %i, Loss: %.4f' % (epoch, loss))
 
-        # model.eval()
-        # gen_bundle, prob = model.gen(10)
-        # print(gen_bundle[881], prob[881])
-        # print(gen_bundle[720], prob[720])
-        # print(gen_bundle[2294], prob[2294])
-        # print(gen_bundle[1933], prob[1933])
+        model.eval()
+        gen_bundle, prob = model.gen(conf['bundle_size'])
+        eval_generated_bundle(gen_bundle, gt_bundle)
 
     model.eval()
     res_bundle, prob = model.gen(conf['bundle_size'])
     torch.save(res_bundle, os.path.join(conf['data_path'], conf['dataset'], 'bundle.pt'))
+
+
+def metrics(pred_list, gd_list):
+    tp = 0
+    pbar = tqdm(gd_list)
+    for i in pbar:
+        for j in pred_list:
+            tp += (i == j)
+
+    re = tp / len(gd_list)
+    pre = tp / len(pred_list)
+    print('generated_size: %i, true positive: %i, recall %.4f, precision %.4f' % (len(pred_list[0]), tp, re, pre))
+    return {
+        'tp': tp,
+        'precision': pre,
+        'recall': re,
+    }
+
+
+def rm_dup_bundle(bundles, size):
+    # remember that each bundle need 1 item example index 720 : [1,2,3,4]
+    # -> bundle is [720, 1, 2, 3, 4]
+    bundles = bundles[:, :size]
+    bundles, _ = bundles.sort(dim=1)
+    bundles = bundles.unique(dim=0)
+    return bundles.tolist()
+
+
+def bundle_graph2list(bi_graph):
+    bi_graph = bi_graph.tocoo()
+    bundle, item = bi_graph.row, bi_graph.col
+    bundle_dict = {}
+
+    for i in range(0, len(bundle)):
+        if bundle[i] not in bundle_dict.keys():
+            bundle_dict[bundle[i]] = [item[i]]
+        else:
+            bundle_dict[bundle[i]].append(item[i])
+
+    # print(bundle_dict)
+    all_bundles = []
+    for key in bundle_dict.keys():
+        all_bundles.append(bundle_dict[key])
+
+    for i in all_bundles:
+        i.sort()
+    return all_bundles
+
+def eval_generated_bundle(gen_bundle, gt_bundle, size_list=[2, 3, 4, 5, 6, 7, 8, 9, 10]):
+    gd_bundle = bundle_graph2list(gt_bundle)
+    bundle_size_stat = np.array(gt_bundle.sum(axis=1).A.ravel(), dtype=int).squeeze()
+    bundle_stat_dict = {}
+
+    # bundle size statistic
+    for i in bundle_size_stat:
+        if i not in bundle_stat_dict.keys():
+            bundle_stat_dict[i] = 1
+        else:
+            bundle_stat_dict[i] += 1
+    # print(bundle[720])
+
+    print(f'evaluating num of bundles: {len(gd_bundle)}')
+    print(bundle_stat_dict)
+
+    # eval k-size bundle
+    bundle_k_dict = {}
+    for i in size_list:
+        bundle_k_dict[i] = rm_dup_bundle(gen_bundle, size=i)
+
+    for i in size_list:
+        metrics(bundle_k_dict[i], gd_bundle)
+    pass
 
 
 if __name__ == '__main__':
@@ -68,4 +137,4 @@ if __name__ == '__main__':
 
     model = ZeGe(item_feat, conf, dataset.iui_graph).to(conf['device'])
     optimizer = Adam(params=model.parameters(), lr=conf['lr'])
-    train_gen_bundle(model, optimizer, dataset.item_item_loader, conf)
+    train_gen_bundle(model, optimizer, dataset.item_item_loader, conf, dataset.bi_graph)

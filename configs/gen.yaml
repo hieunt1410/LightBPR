@@ -1,6 +1,7 @@
 clothing:
   data_path: './datasets'
   batch_size_train: 128
+  batch_size_test: 128
   embedding_sizes: 64
   lr: 1.0e-3
   epochs: 30
@@ -13,6 +14,7 @@ clothing:
 electronic:
   data_path: './datasets'
   batch_size_train: 128
+  batch_size_test: 128
   embedding_sizes: 64
   lr: 1.0e-3
   epochs: 30
@@ -25,6 +27,7 @@ electronic:
 food:
   data_path: './datasets'
   batch_size_train: 128
+  batch_size_test: 128
   embedding_sizes: 64
   lr: 1.0e-3
   epochs: 30

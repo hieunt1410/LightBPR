@@ -95,21 +95,18 @@ def metrics(pred_list, gd_list):
     pre = tp / len(pred_list)
     print('generated_size: %i, true positive: %i, recall %.4f, precision %.4f' % (len(pred_list[0]), tp, re, pre))
     return {
+        'tp': tp,
         'precision': pre,
         'recall': re,
     }
 
 
-if __name__ == '__main__':
-    args = get_arg()
-    n_u, n_b, n_i = get_data_size(dataset=args.dataset)
-    bundle = torch.load(f'datasets/{args.dataset}/bundle.pt')
-    bi_graph = get_bi(dataset=args.dataset, shape=(n_b, n_i))
-    bi_list = bundle_graph2list(bi_graph)
+def evaluate(size_list, bi_graph, bundle_pred_list):
+    gd_bundle = bundle_graph2list(bi_graph)
     bundle_size_stat = np.array(bi_graph.sum(axis=1).A.ravel(), dtype=int).squeeze()
-    print(bundle_size_stat)
     bundle_stat_dict = {}
 
+    # bundle size statistic
     for i in bundle_size_stat:
         if i not in bundle_stat_dict.keys():
             bundle_stat_dict[i] = 1
@@ -117,13 +114,25 @@ if __name__ == '__main__':
             bundle_stat_dict[i] += 1
     # print(bundle[720])
 
-    print(f'num of bundles: {len(bi_list)}')
+    print(f'num of bundles: {len(gd_bundle)}')
     print(bundle_stat_dict)
 
-    size_list = args.size
+    # eval k-size bundle
     bundle_k_dict = {}
     for i in size_list:
-        bundle_k_dict[i] = rm_dup_bundle(bundle, size=i)
+        bundle_k_dict[i] = rm_dup_bundle(bundle_pred_list, size=i)
 
     for i in size_list:
-        metrics(bundle_k_dict[i], bi_list)
+        metrics(bundle_k_dict[i], gd_bundle)
+
+
+if __name__ == '__main__':
+    args = get_arg()
+    n_u, n_b, n_i = get_data_size(dataset=args.dataset)
+    pred_bundle = torch.load(f'datasets/{args.dataset}/bundle.pt')
+    # bundle of item 720
+    print(pred_bundle[720])
+    bi_graph = get_bi(dataset=args.dataset, shape=(n_b, n_i))
+
+    # evaluate bundle-matching
+    evaluate(args.size, bi_graph, pred_bundle)
