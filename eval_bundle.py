@@ -10,6 +10,8 @@ from tqdm import tqdm
 def get_arg():
     argp = ArgumentParser()
     argp.add_argument('-d', '--dataset', type=str, default='clothing')
+    argp.add_argument('-s', '--size', nargs='*', type=int, default=[2, 3, 4, 5, 6, 7, 8, 9, 10])
+
     args = argp.parse_args()
     return args
 
@@ -87,8 +89,7 @@ def metrics(pred_list, gd_list):
     pbar = tqdm(gd_list)
     for i in pbar:
         for j in pred_list:
-            if i == j:
-                tp += 1
+            tp += (i == j)
 
     re = tp / len(gd_list)
     pre = tp / len(pred_list)
@@ -103,19 +104,26 @@ if __name__ == '__main__':
     args = get_arg()
     n_u, n_b, n_i = get_data_size(dataset=args.dataset)
     bundle = torch.load(f'datasets/{args.dataset}/bundle.pt')
+    bi_graph = get_bi(dataset=args.dataset, shape=(n_b, n_i))
+    bi_list = bundle_graph2list(bi_graph)
+    bundle_size_stat = np.array(bi_graph.sum(axis=1).A.ravel(), dtype=int).squeeze()
+    print(bundle_size_stat)
+    bundle_stat_dict = {}
 
+    for i in bundle_size_stat:
+        if i not in bundle_stat_dict.keys():
+            bundle_stat_dict[i] = 1
+        else:
+            bundle_stat_dict[i] += 1
     # print(bundle[720])
 
-    size5_unique_bundle = rm_dup_bundle(bundle, size=5)
-    size4_unique_bundle = rm_dup_bundle(bundle, size=4)
-    size3_unique_bundle = rm_dup_bundle(bundle, size=3)
-    size2_unique_bundle = rm_dup_bundle(bundle, size=2)
-    size6_unique_bundle = rm_dup_bundle(bundle, size=6)
-
-    bi_list = bundle_graph2list(get_bi(dataset=args.dataset, shape=(n_b, n_i)))
     print(f'num of bundles: {len(bi_list)}')
-    metrics(size2_unique_bundle, bi_list)
-    metrics(size3_unique_bundle, bi_list)
-    metrics(size4_unique_bundle, bi_list)
-    metrics(size5_unique_bundle, bi_list)
-    metrics(size6_unique_bundle, bi_list)
+    print(bundle_stat_dict)
+
+    size_list = args.size
+    bundle_k_dict = {}
+    for i in size_list:
+        bundle_k_dict[i] = rm_dup_bundle(bundle, size=i)
+
+    for i in size_list:
+        metrics(bundle_k_dict[i], bi_list)
