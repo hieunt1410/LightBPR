@@ -29,45 +29,20 @@ def get_arg():
     return args
 
 
-def train_gen_bundle(model, optimizer, dataloader, conf, gt_bundle):
-    EPOCH = conf['epochs']
-    device = conf['device']
-
-    for epoch in range(0, EPOCH + 1):
-        model.train(True)
-        pbar = tqdm(dataloader, total=len(dataloader))
-
-        for i, batch in enumerate(pbar):
-            batch = [x.to(device) for x in batch]
-            optimizer.zero_grad()
-            loss = model(batch)
-            loss.backward()
-            optimizer.step()
-            pbar.set_description('Epoch: %i, Loss: %.4f' % (epoch, loss))
-
-        model.eval()
-        gen_bundle, prob = model.gen(conf['bundle_size'])
-        eval_generated_bundle(gen_bundle, gt_bundle)
-
-    model.eval()
-    res_bundle, prob = model.gen(conf['bundle_size'])
-    torch.save(res_bundle, os.path.join(conf['data_path'], conf['dataset'], 'bundle.pt'))
-
-
-def metrics(pred_list, gd_list):
+def get_metrics(pred_list, gd_list):
     tp = 0
     pbar = tqdm(gd_list)
     for i in pbar:
         for j in pred_list:
             tp += (i == j)
 
-    re = tp / len(gd_list)
-    pre = tp / len(pred_list)
-    print('generated_size: %i, true positive: %i, recall %.4f, precision %.4f' % (len(pred_list[0]), tp, re, pre))
+    recall = tp / len(gd_list)
+    precision = tp / len(pred_list)
+    print('generated_size: %i, true positive: %i, recall %.4f, precision %.4f' % (len(pred_list[0]), tp, recall, precision))
     return {
         'tp': tp,
-        'precision': pre,
-        'recall': re,
+        'precision': precision,
+        'recall': recall,
     }
 
 
@@ -100,6 +75,7 @@ def bundle_graph2list(bi_graph):
         i.sort()
     return all_bundles
 
+
 def eval_generated_bundle(gen_bundle, gt_bundle, size_list=[2, 3, 4, 5, 6, 7, 8, 9, 10]):
     gd_bundle = bundle_graph2list(gt_bundle)
     bundle_size_stat = np.array(gt_bundle.sum(axis=1).A.ravel(), dtype=int).squeeze()
@@ -113,7 +89,7 @@ def eval_generated_bundle(gen_bundle, gt_bundle, size_list=[2, 3, 4, 5, 6, 7, 8,
             bundle_stat_dict[i] += 1
     # print(bundle[720])
 
-    print(f'evaluating num of bundles: {len(gd_bundle)}')
+    print(f'Evaluating num of bundles: {len(gd_bundle)}')
     print(bundle_stat_dict)
 
     # eval k-size bundle
@@ -122,11 +98,38 @@ def eval_generated_bundle(gen_bundle, gt_bundle, size_list=[2, 3, 4, 5, 6, 7, 8,
         bundle_k_dict[i] = rm_dup_bundle(gen_bundle, size=i)
 
     for i in size_list:
-        metrics(bundle_k_dict[i], gd_bundle)
-    pass
+        get_metrics(bundle_k_dict[i], gd_bundle)
 
 
-if __name__ == '__main__':
+def train_gen_bundle(model, optimizer, dataloader, conf, gt_bundle):
+    EPOCH = conf['epochs']
+    device = conf['device']
+
+    for epoch in range(0, EPOCH + 1):
+        model.train(True)
+        pbar = tqdm(dataloader, total=len(dataloader))
+
+        for i, batch in enumerate(pbar):
+            batch = [x.to(device) for x in batch]
+            optimizer.zero_grad()
+            loss = model(batch)
+            loss.backward()
+            optimizer.step()
+            pbar.set_description('Epoch: %i, Loss: %.4f' % (epoch, loss))
+
+        # evaluate generated bundle
+        if epoch % conf['test_interval'] == 0:
+            model.eval()
+            gen_bundle, prob = model.gen(conf['bundle_size'])
+            eval_generated_bundle(gen_bundle, gt_bundle)
+
+    # save generated bundle
+    model.eval()
+    res_bundle, prob = model.gen(conf['bundle_size'])
+    torch.save(res_bundle, os.path.join(conf['data_path'], conf['dataset'], 'bundle.pt'))
+
+
+def main():
     torch.manual_seed(2023)
     np.random.seed(2023)
 
@@ -138,3 +141,7 @@ if __name__ == '__main__':
     model = ZeGe(item_feat, conf, dataset.iui_graph).to(conf['device'])
     optimizer = Adam(params=model.parameters(), lr=conf['lr'])
     train_gen_bundle(model, optimizer, dataset.item_item_loader, conf, dataset.bi_graph)
+
+
+if __name__ == '__main__':
+    main()
