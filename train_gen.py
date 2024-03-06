@@ -67,5 +67,5 @@ if __name__ == '__main__':
     item_feat = torch.load(f'datasets/{args.dataset}/self_trained_feature.pt', )
 
     model = ZeGe(item_feat, conf, dataset.iui_graph).to(conf['device'])
-    optimizer = Adam(params=model.parameters())
+    optimizer = Adam(params=model.parameters(), lr=conf['lr'])
     train_gen_bundle(model, optimizer, dataset.item_item_loader, conf)

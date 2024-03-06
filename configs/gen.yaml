@@ -4,7 +4,6 @@ clothing:
   batch_size_test: 128
   embedding_sizes: 64
   lr: 1.0e-3
-  l2_reg: 1.0e-4
   epochs: 30
   test_interval: 1
   bundle_size: 10
@@ -18,7 +17,6 @@ electronic:
   batch_size_test: 128
   embedding_sizes: 64
   lr: 1.0e-3
-  l2_reg: 1.0e-4
   epochs: 30
   test_interval: 1
   bundle_size: 10
@@ -32,7 +30,6 @@ food:
   batch_size_test: 128
   embedding_sizes: 64
   lr: 1.0e-3
-  l2_reg: 1.0e-4
   epochs: 30
   test_interval: 1
   bundle_size: 10
