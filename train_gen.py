@@ -4,7 +4,7 @@ import yaml
 from torch.optim import Adam
 from tqdm import tqdm
 
-from models.BunGen import *
+from models.ZeGe import *
 from utility import *
 
 
@@ -21,6 +21,10 @@ def load_config(dataset):
 def get_arg():
     argp = ArgumentParser()
     argp.add_argument('-d', '--dataset', type=str, default='clothing')
+    argp.add_argument('-lr', '--learning_rate', type=float, default=1e-3)
+    argp.add_argument('-ep', '--epochs', type=int, default=30)
+    argp.add_argument('-bs', '--bundle_size', type=int, default=10)
+
     args = argp.parse_args()
     return args
 
@@ -62,7 +66,6 @@ if __name__ == '__main__':
     dataset = Datasets(conf)
     item_feat = torch.load(f'datasets/{args.dataset}/self_trained_feature.pt', )
 
-    model = BunGen(item_feat, conf, dataset.iui_graph).to(conf['device'])
+    model = ZeGe(item_feat, conf, dataset.iui_graph).to(conf['device'])
     optimizer = Adam(params=model.parameters())
-
     train_gen_bundle(model, optimizer, dataset.item_item_loader, conf)

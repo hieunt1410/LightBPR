@@ -3,14 +3,13 @@ clothing:
   batch_size_train: 128
   batch_size_test: 128
   embedding_sizes: 64
-  lrs: 1.0e-3
-  l2_regs: 1.0e-4
+  lr: 1.0e-3
+  l2_reg: 1.0e-4
   epochs: 30
   test_interval: 1
   bundle_size: 10
   sep: "\t"
   file_type: ".txt"
-  num_layer: 1
 
 
 electronic:
@@ -18,14 +17,13 @@ electronic:
   batch_size_train: 128
   batch_size_test: 128
   embedding_sizes: 64
-  lrs: 1.0e-3
-  l2_regs: 1.0e-4
+  lr: 1.0e-3
+  l2_reg: 1.0e-4
   epochs: 30
   test_interval: 1
   bundle_size: 10
   sep: "\t"
   file_type: ".txt"
-  num_layer: 1
 
 
 food:
@@ -33,11 +31,10 @@ food:
   batch_size_train: 128
   batch_size_test: 128
   embedding_sizes: 64
-  lrs: 1.0e-3
-  l2_regs: 1.0e-4
+  lr: 1.0e-3
+  l2_reg: 1.0e-4
   epochs: 30
   test_interval: 1
   bundle_size: 10
   sep: "\t"
   file_type: ".txt"
-  num_layer: 1

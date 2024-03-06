@@ -5,7 +5,7 @@ from torch.nn.functional import softmax
 from models.ZeRe import to_tensor, laplace_transform
 
 
-class BunGen(nn.Module):
+class ZeGe(nn.Module):
     def __init__(self, item_feat, conf, graph=None):
         super().__init__()
         # using pre-trained weight
@@ -13,7 +13,6 @@ class BunGen(nn.Module):
         self.device = conf['device']
         self.item_feature = item_feat
         self.num_item = self.item_feature.shape[0]
-        self.num_layer = conf['num_layer']
         self.iui_graph = graph
         self.ii_propagate_graph = self.get_propagate_graph()
 
