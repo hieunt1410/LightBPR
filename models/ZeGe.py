@@ -66,8 +66,8 @@ class ZeGe(nn.Module):
         indices = torch.arange(0, self.num_item).view(-1, 1)
         id_prob = torch.zeros((self.num_item, 1))
 
-        bundle = torch.cat([indices, top_k_bundle], dim=1)
-        prob = torch.cat([id_prob, top_k_prob], dim=1)
+        bundle = torch.cat([indices, top_k_bundle.to('cpu')], dim=1)
+        prob = torch.cat([id_prob, top_k_prob.to('cpu')], dim=1)
         return bundle, prob
 
     def semantic_filter(self):
