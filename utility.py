@@ -137,7 +137,7 @@ class Datasets():
 
         self.bundle_val_data = BundleTestDataset(u_b_pairs_val, u_b_graph_val, self.num_users, self.num_bundles)
         self.bundle_test_data = BundleTestDataset(u_b_pairs_test, u_b_graph_test, self.num_users, self.num_bundles)
-        self.item_train_data = ItemTrainDataset(conf, u_i_pairs, u_i_graph, self.num_items, neg_sample=1)
+        self.item_train_data = ItemTrainDataset(conf, u_i_pairs, u_i_graph, self.num_items, neg_sample=conf['neg_num'])
         self.item_item_train_data = BunGenDataset(conf, graph_to_pairs(iui_graph), iui_graph, self.num_items)
         self.graphs = [u_i_graph, b_i_graph]
         self.item_train_loader = DataLoader(self.item_train_data, batch_size=batch_size_train, shuffle=True,

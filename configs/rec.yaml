@@ -3,7 +3,7 @@ clothing:
   batch_size_train: 128
   batch_size_test: 128
   topk: [1, 2, 3, 4]
-  neg_num: 1
+  neg_num: 4
   aug_type: "ED"
   ed_interval: 1
   embedding_sizes: [64]
