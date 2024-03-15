@@ -254,10 +254,10 @@ def test(model, dataloader, conf):
     device = conf["device"]
     model.eval()
     rs = model.propagate(test=True)
-    for users, ground_truth_u_b in dataloader:
+    for users, ground_truth_u_b, train_mask_u_b in dataloader:
         pred_b = model.evaluate(rs, users.to(device))
         # TODO: rm mask train
-        # pred_b -= 1e8 * train_mask_u_b.to(device)res
+        pred_b -= 1e8 * train_mask_u_b.to(device)  # res
         tmp_metrics = get_metrics(tmp_metrics, ground_truth_u_b, pred_b, conf["topk"])
 
     metrics = {}
