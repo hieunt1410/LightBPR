@@ -79,8 +79,8 @@ MovieLens:
   bundle_agg_ratios: [0.0]
   lrs: [1.0e-3]
   l2_regs: [1.0e-4]
-  epochs: 20
-  test_interval: 2
+  epochs: 50
+  test_interval: 5
   sep: "\t"
   file_type: ".txt"
   topk_valid: 20
