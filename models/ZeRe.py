@@ -276,7 +276,6 @@ class ZeRe(nn.Module):
 
         users, items = batch
         users_feature, items_feature = self.propagate()
-        print("items sample shape", items.shape)
 
         users_embedding = users_feature[users]
         items_embedding = items_feature[items]
