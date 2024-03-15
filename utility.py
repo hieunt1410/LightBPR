@@ -92,10 +92,10 @@ class ItemTrainDataset(Dataset):
 
 
 class BundleTestDataset(Dataset):
-    def __init__(self, u_b_pairs, u_b_graph, num_users, num_bundles):
+    def __init__(self, u_b_pairs, u_b_graph, u_b_graph_train, num_users, num_bundles):
         self.u_b_pairs = u_b_pairs
         self.u_b_graph = u_b_graph
-        # self.train_mask_u_b = u_b_graph_train
+        self.train_mask_u_b = u_b_graph_train
 
         self.num_users = num_users
         self.num_bundles = num_bundles
@@ -105,10 +105,9 @@ class BundleTestDataset(Dataset):
 
     def __getitem__(self, index):
         u_b_grd = torch.from_numpy(self.u_b_graph[index].toarray()).squeeze()
-        # u_b_mask = torch.from_numpy(self.train_mask_u_b[index].toarray()).squeeze()
+        u_b_mask = torch.from_numpy(self.train_mask_u_b[index].toarray()).squeeze()
 
-        # return index, u_b_grd, u_b_mask
-        return index, u_b_grd
+        return index, u_b_grd, u_b_mask
 
     def __len__(self):
         return self.u_b_graph.shape[0]
@@ -130,13 +129,16 @@ class Datasets():
 
         u_b_pairs_val, u_b_graph_val = self.get_ub("valid")
         u_b_pairs_test, u_b_graph_test = self.get_ub("test")
+        u_b_pairs_train, u_b_graph_train = self.get_ub("train")
         iui_graph = (u_i_graph.T @ u_i_graph - sp.eye(self.num_items, self.num_items)) > 0
 
         self.iui_graph = iui_graph
         self.bi_graph = b_i_graph
 
-        self.bundle_val_data = BundleTestDataset(u_b_pairs_val, u_b_graph_val, self.num_users, self.num_bundles)
-        self.bundle_test_data = BundleTestDataset(u_b_pairs_test, u_b_graph_test, self.num_users, self.num_bundles)
+        self.bundle_val_data = BundleTestDataset(u_b_pairs_val, u_b_graph_val, u_b_graph_train, self.num_users,
+                                                 self.num_bundles)
+        self.bundle_test_data = BundleTestDataset(u_b_pairs_test, u_b_graph_test, u_b_graph_train, self.num_users,
+                                                  self.num_bundles)
         self.item_train_data = ItemTrainDataset(conf, u_i_pairs, u_i_graph, self.num_items, neg_sample=conf['neg_num'])
         self.item_item_train_data = BunGenDataset(conf, graph_to_pairs(iui_graph), iui_graph, self.num_items)
         self.graphs = [u_i_graph, b_i_graph]
