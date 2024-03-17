@@ -357,7 +357,7 @@ def get_ndcg(pred, grd, is_hit, topk):
     return [nomina, denorm]
 
 def get_jaccard(pred, grd):
-    pred.to(torch.device('cpu'))
+    pred = pred.to(grd.device)
     intersect = intersect = torch.matmul(pred, grd.T)
     total_a = torch.sum(pred, dim=1).view(-1, 1)
     total_b = torch.sum(grd, dim=1).view(1, -1)
