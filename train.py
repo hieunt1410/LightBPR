@@ -276,7 +276,7 @@ def test(model, dataloader, conf):
 
 
 def get_metrics(metrics, grd, pred, topks):
-    tmp = {"recall": {}, "ndcg": {}, "precision": {}, "phr": {}, "jaccard": 0}
+    tmp = {"recall": {}, "ndcg": {}, "precision": {}, "phr": {}}
     for topk in topks:
         _, col_indice = torch.topk(pred, topk)
         row_indice = torch.zeros_like(col_indice) + torch.arange(pred.shape[0], device=pred.device,
@@ -357,9 +357,10 @@ def get_ndcg(pred, grd, is_hit, topk):
     return [nomina, denorm]
 
 def get_jaccard(pred, grd):
-    intersect = pred @ grd.T
-    total_a = torch.sum(pd_bundles, dim=1).view(-1, 1)
-    total_b = torch.sum(gd_bundles, dim=1).view(1, -1)
+    pred.to(torch.device('cpu'))
+    intersect = intersect = torch.matmul(pred, grd.T)
+    total_a = torch.sum(pred, dim=1).view(-1, 1)
+    total_b = torch.sum(grd, dim=1).view(1, -1)
     total_overlap = total_a + total_b
     total = total_overlap - intersect
     cnt = pred.shape[0] - (grd.sum(dim=1) == 0).sum().item()
