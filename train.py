@@ -182,10 +182,12 @@ def init_best_metrics(conf):
 
 def write_log(run, log_path, topk, step, metrics):
     curr_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    val_scores = metrics["val"][:-1]
-    test_scores = metrics["test"][:-1]
+    val_scores = metrics["val"]
+    test_scores = metrics["test"]
 
     for m, val_score in val_scores.items():
+        if m == 'jaccard':
+            continue
         test_score = test_scores[m]
         run.add_scalar("%s_%d/Val" % (m, topk), val_score[topk], step)
         run.add_scalar("%s_%d/Test" % (m, topk), test_score[topk], step)
