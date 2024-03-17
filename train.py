@@ -255,7 +255,8 @@ def test(model, dataloader, conf):
         tmp_metrics[m] = {}
         for topk in conf["topk"]:
             tmp_metrics[m][topk] = [0, 0]
-
+    tmp_metrics["jaccard"] = 0
+    
     device = conf["device"]
     model.eval()
     rs = model.propagate(test=True)
@@ -266,7 +267,7 @@ def test(model, dataloader, conf):
         tmp_metrics = get_metrics(tmp_metrics, ground_truth_u_b, pred_b, conf["topk"])
 
     metrics = {}
-    for m, topk_res in tmp_metrics.items():
+    for m, topk_res in tmp_metrics[:-1].items():
         metrics[m] = {}
         for topk, res in topk_res.items():
             metrics[m][topk] = res[0] / res[1]
