@@ -168,6 +168,7 @@ def init_best_metrics(conf):
         best_metrics[key]["recall"] = {}
         best_metrics[key]["ndcg"] = {}
         best_metrics[key]["precision"] = {}
+        best_metrics[key]["phr"] = {}
     for topk in conf['topk']:
         for key, res in best_metrics.items():
             for metric in res:
@@ -181,18 +182,20 @@ def init_best_metrics(conf):
 
 def write_log(run, log_path, topk, step, metrics):
     curr_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    val_scores = metrics["val"]
-    test_scores = metrics["test"]
+    val_scores = metrics["val"][:-1]
+    test_scores = metrics["test"][:-1]
 
     for m, val_score in val_scores.items():
         test_score = test_scores[m]
         run.add_scalar("%s_%d/Val" % (m, topk), val_score[topk], step)
         run.add_scalar("%s_%d/Test" % (m, topk), test_score[topk], step)
+    # run.add_scalar("%s/Val" % (m), metrics["val"][-1], step)
+    # run.add_scalar("%s/Test" % (m), metrics["test"][-1], step)
 
-    val_str = "%s, Top_%d, Val:  recall: %f, ndcg: %f, precision: %f" % (
-        curr_time, topk, val_scores["recall"][topk], val_scores["ndcg"][topk], val_scores["precision"][topk])
-    test_str = "%s, Top_%d, Test: recall: %f, ndcg: %f, precision: %f" % (
-        curr_time, topk, test_scores["recall"][topk], test_scores["ndcg"][topk], test_scores["precision"][topk])
+    val_str = "%s, Top_%d, Val:  recall: %f, ndcg: %f, precision: %f, phr: %f" % (
+        curr_time, topk, val_scores["recall"][topk], val_scores["ndcg"][topk], val_scores["precision"][topk], val_scores["phr"][topk])
+    test_str = "%s, Top_%d, Test: recall: %f, ndcg: %f, precision: %f, phr: %f" % (
+        curr_time, topk, test_scores["recall"][topk], test_scores["ndcg"][topk], test_scores["precision"][topk], test_scores["phr"][topk])
 
     log = open(log_path, "a")
     log.write("%s\n" % (val_str))
@@ -228,17 +231,19 @@ def log_metrics(conf, model, metrics, run, log_path, checkpoint_model_path, chec
                 for metric in res:
                     best_metrics[key][metric][topk] = metrics[key][metric][topk]
 
-            best_perform["test"][topk] = "%s, Best in epoch %d, TOP %d: REC_T=%.5f, NDCG_T=%.5f, PRE_T: %.5f" % (
+            best_perform["test"][topk] = "%s, Best in epoch %d, TOP %d: REC_T=%.5f, NDCG_T=%.5f, PRE_T: %.5f, PHR_T: %.5f" % (
                 curr_time, best_epoch, topk, best_metrics["test"]["recall"][topk], best_metrics["test"]["ndcg"][topk],
-                best_metrics["test"]["precision"][topk])
-            best_perform["val"][topk] = "%s, Best in epoch %d, TOP %d: REC_V=%.5f, NDCG_V=%.5f, PRE_V: %.5f" % (
+                best_metrics["test"]["precision"][topk], best_metrics["test"]["phr"][topk])
+            best_perform["val"][topk] = "%s, Best in epoch %d, TOP %d: REC_V=%.5f, NDCG_V=%.5f, PRE_V: %.5f, PHR_V: %.5f" % (
                 curr_time, best_epoch, topk, best_metrics["val"]["recall"][topk], best_metrics["val"]["ndcg"][topk],
-                best_metrics["test"]["precision"][topk])
+                best_metrics["test"]["precision"][topk], best_metrics["test"]["phr"][topk])
             print(best_perform["val"][topk])
             print(best_perform["test"][topk])
             log.write(best_perform["val"][topk] + "\n")
             log.write(best_perform["test"][topk] + "\n")
-
+        print("Jaccard_V: ", metrics["val"]["jaccard"])
+        print("Jaccard_T: ", metrics["test"]["jaccard"])
+    
     log.close()
 
     return best_metrics, best_perform, best_epoch, update
@@ -246,7 +251,7 @@ def log_metrics(conf, model, metrics, run, log_path, checkpoint_model_path, chec
 
 def test(model, dataloader, conf):
     tmp_metrics = {}
-    for m in ["recall", "ndcg", "precision"]:
+    for m in ["recall", "ndcg", "precision", "phr"]:
         tmp_metrics[m] = {}
         for topk in conf["topk"]:
             tmp_metrics[m][topk] = [0, 0]
@@ -265,12 +270,13 @@ def test(model, dataloader, conf):
         metrics[m] = {}
         for topk, res in topk_res.items():
             metrics[m][topk] = res[0] / res[1]
-
+    metrics["jaccard"] = tmp_metrics["jaccard"]
+    
     return metrics
 
 
 def get_metrics(metrics, grd, pred, topks):
-    tmp = {"recall": {}, "ndcg": {}, "precision": {}}
+    tmp = {"recall": {}, "ndcg": {}, "precision": {}, "phr": {}, "jaccard": 0}
     for topk in topks:
         _, col_indice = torch.topk(pred, topk)
         row_indice = torch.zeros_like(col_indice) + torch.arange(pred.shape[0], device=pred.device,
@@ -280,7 +286,9 @@ def get_metrics(metrics, grd, pred, topks):
         tmp["recall"][topk] = get_recall(pred, grd, is_hit, topk)
         tmp["ndcg"][topk] = get_ndcg(pred, grd, is_hit, topk)
         tmp["precision"][topk] = get_precision(pred, grd, is_hit, topk)
-
+        tmp["phr"][topk] = get_phr(pred, grd, is_hit, topk)
+        metrics["jaccard"] = get_jaccard(pred, grd)
+        
     for m, topk_res in tmp.items():
         for topk, res in topk_res.items():
             for i, x in enumerate(res):
@@ -294,9 +302,18 @@ def get_recall(pred, grd, is_hit, topk):
     hit_cnt = is_hit.sum(dim=1)
     num_pos = grd.sum(dim=1)
 
-    # remove those test cases who don't have any positive items
     denorm = pred.shape[0] - (num_pos == 0).sum().item()
     nomina = (hit_cnt / (num_pos + epsilon)).sum().item()
+
+    return [nomina, denorm]
+
+def get_phr(pred, grd, is_hit, topk):
+    epsilon = 1e-8
+    hit_cnt = is_hit.sum(dim=1)
+    num_pos = grd.sum(dim=1)
+
+    denorm = pred.shape[0] - (num_pos == 0).sum().item()
+    nomina = (hit_cnt > 0).sum().item()
 
     return [nomina, denorm]
 
@@ -339,6 +356,15 @@ def get_ndcg(pred, grd, is_hit, topk):
 
     return [nomina, denorm]
 
+def get_jaccard(pred, grd):
+    intersect = pred @ grd.T
+    total_a = torch.sum(pd_bundles, dim=1).view(-1, 1)
+    total_b = torch.sum(gd_bundles, dim=1).view(1, -1)
+    total_overlap = total_a + total_b
+    total = total_overlap - intersect
+    cnt = pred.shape[0] - (grd.sum(dim=1) == 0).sum().item()
+    
+    return torch.mean(intersect / total) / cnt
 
 if __name__ == "__main__":
     main()
