@@ -267,7 +267,9 @@ def test(model, dataloader, conf):
         tmp_metrics = get_metrics(tmp_metrics, ground_truth_u_b, pred_b, conf["topk"])
 
     metrics = {}
-    for m, topk_res in tmp_metrics[:-1].items():
+    for m, topk_res in tmp_metrics.items():
+        if m == 'jaccard':
+            continue
         metrics[m] = {}
         for topk, res in topk_res.items():
             metrics[m][topk] = res[0] / res[1]
