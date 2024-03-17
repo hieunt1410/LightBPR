@@ -243,8 +243,8 @@ def log_metrics(conf, model, metrics, run, log_path, checkpoint_model_path, chec
             print(best_perform["test"][topk])
             log.write(best_perform["val"][topk] + "\n")
             log.write(best_perform["test"][topk] + "\n")
-        print("Jaccard_V: ", metrics["val"]["jaccard"])
-        print("Jaccard_T: ", metrics["test"]["jaccard"])
+        print("Jaccard_V: ", metrics["val"]["jaccard"].item())
+        print("Jaccard_T: ", metrics["test"]["jaccard"].item())
     
     log.close()
 
