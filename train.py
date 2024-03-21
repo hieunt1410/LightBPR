@@ -169,6 +169,8 @@ def init_best_metrics(conf):
         best_metrics[key]["ndcg"] = {}
         best_metrics[key]["precision"] = {}
         best_metrics[key]["phr"] = {}
+        best_metrics[key]["jaccard"] = {}
+        
     for topk in conf['topk']:
         for key, res in best_metrics.items():
             for metric in res:
@@ -186,18 +188,14 @@ def write_log(run, log_path, topk, step, metrics):
     test_scores = metrics["test"]
 
     for m, val_score in val_scores.items():
-        if m == 'jaccard':
-            continue
         test_score = test_scores[m]
         run.add_scalar("%s_%d/Val" % (m, topk), val_score[topk], step)
         run.add_scalar("%s_%d/Test" % (m, topk), test_score[topk], step)
-    # run.add_scalar("%s/Val" % (m), metrics["val"][-1], step)
-    # run.add_scalar("%s/Test" % (m), metrics["test"][-1], step)
 
-    val_str = "%s, Top_%d, Val:  recall: %f, ndcg: %f, precision: %f, phr: %f" % (
-        curr_time, topk, val_scores["recall"][topk], val_scores["ndcg"][topk], val_scores["precision"][topk], val_scores["phr"][topk])
-    test_str = "%s, Top_%d, Test: recall: %f, ndcg: %f, precision: %f, phr: %f" % (
-        curr_time, topk, test_scores["recall"][topk], test_scores["ndcg"][topk], test_scores["precision"][topk], test_scores["phr"][topk])
+    val_str = "%s, Top_%d, Val:  recall: %f, ndcg: %f, precision: %f, phr: %f, jac: %f" % (
+        curr_time, topk, val_scores["recall"][topk], val_scores["ndcg"][topk], val_scores["precision"][topk], val_scores["phr"][topk], val_scores["jaccard"])
+    test_str = "%s, Top_%d, Test: recall: %f, ndcg: %f, precision: %f, phr: %f, jac: %f" % (
+        curr_time, topk, test_scores["recall"][topk], test_scores["ndcg"][topk], test_scores["precision"][topk], test_scores["phr"][topk], test_scores["jaccard"])
 
     log = open(log_path, "a")
     log.write("%s\n" % (val_str))
@@ -233,18 +231,16 @@ def log_metrics(conf, model, metrics, run, log_path, checkpoint_model_path, chec
                 for metric in res:
                     best_metrics[key][metric][topk] = metrics[key][metric][topk]
 
-            best_perform["test"][topk] = "%s, Best in epoch %d, TOP %d: REC_T=%.5f, NDCG_T=%.5f, PRE_T: %.5f, PHR_T: %.5f" % (
+            best_perform["test"][topk] = "%s, Best in epoch %d, TOP %d: REC_T=%.5f, NDCG_T=%.5f, PRE_T: %.5f, PHR_T: %.5f, JAC_T :%.5f" % (
                 curr_time, best_epoch, topk, best_metrics["test"]["recall"][topk], best_metrics["test"]["ndcg"][topk],
-                best_metrics["test"]["precision"][topk], best_metrics["test"]["phr"][topk])
-            best_perform["val"][topk] = "%s, Best in epoch %d, TOP %d: REC_V=%.5f, NDCG_V=%.5f, PRE_V: %.5f, PHR_V: %.5f" % (
+                best_metrics["test"]["precision"][topk], best_metrics["test"]["phr"][topk], best_metrics["test"["jaccard"][topk]])
+            best_perform["val"][topk] = "%s, Best in epoch %d, TOP %d: REC_V=%.5f, NDCG_V=%.5f, PRE_V: %.5f, PHR_V: %.5f, JAC_V: %.5f" % (
                 curr_time, best_epoch, topk, best_metrics["val"]["recall"][topk], best_metrics["val"]["ndcg"][topk],
-                best_metrics["test"]["precision"][topk], best_metrics["test"]["phr"][topk])
+                best_metrics["val"]["precision"][topk], best_metrics["val"]["phr"][topk], best_metrics["val"["jaccard"][topk]])
             print(best_perform["val"][topk])
             print(best_perform["test"][topk])
             log.write(best_perform["val"][topk] + "\n")
             log.write(best_perform["test"][topk] + "\n")
-        print("Jaccard_V: ", metrics["val"]["jaccard"].item())
-        print("Jaccard_T: ", metrics["test"]["jaccard"].item())
     
     log.close()
 
@@ -253,11 +249,10 @@ def log_metrics(conf, model, metrics, run, log_path, checkpoint_model_path, chec
 
 def test(model, dataloader, conf):
     tmp_metrics = {}
-    for m in ["recall", "ndcg", "precision", "phr"]:
+    for m in ["recall", "ndcg", "precision", "phr", "jaccard"]:
         tmp_metrics[m] = {}
         for topk in conf["topk"]:
             tmp_metrics[m][topk] = [0, 0]
-    tmp_metrics["jaccard"] = 0
     
     device = conf["device"]
     model.eval()
@@ -270,12 +265,9 @@ def test(model, dataloader, conf):
 
     metrics = {}
     for m, topk_res in tmp_metrics.items():
-        if m == 'jaccard':
-            continue
         metrics[m] = {}
         for topk, res in topk_res.items():
             metrics[m][topk] = res[0] / res[1]
-    metrics["jaccard"] = tmp_metrics["jaccard"]
     
     return metrics
 
@@ -288,11 +280,12 @@ def get_metrics(metrics, grd, pred, topks):
                                                                  dtype=torch.long).view(-1, 1)
         is_hit = grd[row_indice.view(-1).to(grd.device), col_indice.view(-1).to(grd.device)].view(-1, topk)
 
+        real_user, jacs = get_bundle_onehot(col_indice, grd, bi_graph)
         tmp["recall"][topk] = get_recall(pred, grd, is_hit, topk)
         tmp["ndcg"][topk] = get_ndcg(pred, grd, is_hit, topk)
         tmp["precision"][topk] = get_precision(pred, grd, is_hit, topk)
         tmp["phr"][topk] = get_phr(pred, grd, is_hit, topk)
-        metrics["jaccard"] = get_jaccard(pred, grd)
+        tmp["jaccard"] = [jacs, real_user]
         
     for m, topk_res in tmp.items():
         for topk, res in topk_res.items():
@@ -368,9 +361,24 @@ def get_jaccard(pred, grd):
     total_b = torch.sum(grd, dim=1).view(1, -1)
     total_overlap = total_a + total_b
     total = total_overlap - intersect
-    cnt = pred.shape[0] - (grd.sum(dim=1) == 0).sum().item()
+    jaccard = intersect / total
+    max_each, idx = torch.max(jaccard, dim = 0)
     
-    return torch.mean(intersect / total) / cnt
+    return torch.mean(max_each)
+
+def get_bundle_onehot(predub, gdub, bi_graph):
+    cnt = 0
+    jacs = 0
+    bi_graph = bi_graph.to_dense()
+    for i in range(predub.shape[0]):
+        if gdub[i].sum() != 0:
+            cnt += 1
+            idpred = torch.tensor(predub[i], dtype=torch.long).to('cpu')
+            idgd = torch.tensor(gdub[i].nonzero().squeeze(dim = 1), dtype=torch.long).to('cpu')
+            pred_bundles = bi_graph[idpred]
+            gd_bundles = bi_graph[idgd]
+            jacs += get_jaccard(pred_bundles, gd_bundles)
+    return cnt, jacs
 
 if __name__ == "__main__":
     main()
