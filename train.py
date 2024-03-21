@@ -193,9 +193,9 @@ def write_log(run, log_path, topk, step, metrics):
         run.add_scalar("%s_%d/Test" % (m, topk), test_score[topk], step)
 
     val_str = "%s, Top_%d, Val:  recall: %f, ndcg: %f, precision: %f, phr: %f, jac: %f" % (
-        curr_time, topk, val_scores["recall"][topk], val_scores["ndcg"][topk], val_scores["precision"][topk], val_scores["phr"][topk], val_scores["jaccard"])
+        curr_time, topk, val_scores["recall"][topk], val_scores["ndcg"][topk], val_scores["precision"][topk], val_scores["phr"][topk], val_scores["jaccard"][topk])
     test_str = "%s, Top_%d, Test: recall: %f, ndcg: %f, precision: %f, phr: %f, jac: %f" % (
-        curr_time, topk, test_scores["recall"][topk], test_scores["ndcg"][topk], test_scores["precision"][topk], test_scores["phr"][topk], test_scores["jaccard"])
+        curr_time, topk, test_scores["recall"][topk], test_scores["ndcg"][topk], test_scores["precision"][topk], test_scores["phr"][topk], test_scores["jaccard"][topk])
 
     log = open(log_path, "a")
     log.write("%s\n" % (val_str))
