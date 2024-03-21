@@ -261,7 +261,7 @@ def test(model, dataloader, conf, bi_graph):
         pred_b = model.evaluate(rs, users.to(device))
         # TODO: rm mask train
         pred_b -= 1e8 * train_mask_u_b.to(device)  # res
-        tmp_metrics = get_metrics(tmp_metrics, ground_truth_u_b, pred_b, conf["topk"])
+        tmp_metrics = get_metrics(tmp_metrics, ground_truth_u_b, pred_b, bi_graph, conf["topk"])
 
     metrics = {}
     for m, topk_res in tmp_metrics.items():
