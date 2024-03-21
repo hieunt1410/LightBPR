@@ -273,7 +273,7 @@ def test(model, dataloader, conf, bi_graph):
 
 
 def get_metrics(metrics, grd, pred, bi_graph, topks):
-    tmp = {"recall": {}, "ndcg": {}, "precision": {}, "phr": {}}
+    tmp = {"recall": {}, "ndcg": {}, "precision": {}, "phr": {}, "jaccard": {}}
     for topk in topks:
         _, col_indice = torch.topk(pred, topk)
         row_indice = torch.zeros_like(col_indice) + torch.arange(pred.shape[0], device=pred.device,
