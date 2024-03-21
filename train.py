@@ -14,7 +14,7 @@ import yaml
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
-from models.ZeRe import ZeRe
+from models.ZeRe import ZeRe, to_tensor
 from utility import Datasets
 
 
