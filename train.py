@@ -233,10 +233,10 @@ def log_metrics(conf, model, metrics, run, log_path, checkpoint_model_path, chec
 
             best_perform["test"][topk] = "%s, Best in epoch %d, TOP %d: REC_T=%.5f, NDCG_T=%.5f, PRE_T: %.5f, PHR_T: %.5f, JAC_T :%.5f" % (
                 curr_time, best_epoch, topk, best_metrics["test"]["recall"][topk], best_metrics["test"]["ndcg"][topk],
-                best_metrics["test"]["precision"][topk], best_metrics["test"]["phr"][topk], best_metrics["test"["jaccard"][topk]])
+                best_metrics["test"]["precision"][topk], best_metrics["test"]["phr"][topk], best_metrics["test"]["jaccard"][topk])
             best_perform["val"][topk] = "%s, Best in epoch %d, TOP %d: REC_V=%.5f, NDCG_V=%.5f, PRE_V: %.5f, PHR_V: %.5f, JAC_V: %.5f" % (
                 curr_time, best_epoch, topk, best_metrics["val"]["recall"][topk], best_metrics["val"]["ndcg"][topk],
-                best_metrics["val"]["precision"][topk], best_metrics["val"]["phr"][topk], best_metrics["val"["jaccard"][topk]])
+                best_metrics["val"]["precision"][topk], best_metrics["val"]["phr"][topk], best_metrics["val"]["jaccard"][topk])
             print(best_perform["val"][topk])
             print(best_perform["test"][topk])
             log.write(best_perform["val"][topk] + "\n")
