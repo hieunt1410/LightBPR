@@ -285,7 +285,7 @@ def get_metrics(metrics, grd, pred, bi_graph, topks):
         tmp["ndcg"][topk] = get_ndcg(pred, grd, is_hit, topk)
         tmp["precision"][topk] = get_precision(pred, grd, is_hit, topk)
         tmp["phr"][topk] = get_phr(pred, grd, is_hit, topk)
-        tmp["jaccard"] = [jacs, real_user]
+        tmp["jaccard"][topk] = [jacs, real_user]
         
     for m, topk_res in tmp.items():
         for topk, res in topk_res.items():
