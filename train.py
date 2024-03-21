@@ -150,8 +150,8 @@ def main():
 
             if epoch % conf["test_interval"] == 0:
                 metrics = {}
-                metrics["val"] = test(model, dataset.val_loader, conf)
-                metrics["test"] = test(model, dataset.test_loader, conf)
+                metrics["val"] = test(model, dataset.val_loader, conf, dataset.bi_graph)
+                metrics["test"] = test(model, dataset.test_loader, conf, dataset.bi_graph)
                 best_metrics, best_perform, best_epoch, update = log_metrics(conf, model, metrics, run, log_path,
                                                                              checkpoint_model_path,
                                                                              checkpoint_conf_path, epoch, batch_anchor,
@@ -247,7 +247,7 @@ def log_metrics(conf, model, metrics, run, log_path, checkpoint_model_path, chec
     return best_metrics, best_perform, best_epoch, update
 
 
-def test(model, dataloader, conf):
+def test(model, dataloader, conf, bi_graph):
     tmp_metrics = {}
     for m in ["recall", "ndcg", "precision", "phr", "jaccard"]:
         tmp_metrics[m] = {}
@@ -272,7 +272,7 @@ def test(model, dataloader, conf):
     return metrics
 
 
-def get_metrics(metrics, grd, pred, topks):
+def get_metrics(metrics, grd, pred, bi_graph, topks):
     tmp = {"recall": {}, "ndcg": {}, "precision": {}, "phr": {}}
     for topk in topks:
         _, col_indice = torch.topk(pred, topk)
