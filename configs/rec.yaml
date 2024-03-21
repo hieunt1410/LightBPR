@@ -64,7 +64,28 @@ food:
   topk_valid: 3
 
 
-MovieLens:
+MLcate:
+  data_path: './datasets'
+  batch_size_train: 2048
+  batch_size_test: 2048
+  topk: [10, 20, 30, 50]
+  neg_num: 1
+  aug_type: "ED"
+  ed_interval: 1
+  embedding_sizes: [64]
+  num_layerss: [1]
+  item_level_ratios: [0.0]
+  bundle_level_ratios: [0.0]
+  bundle_agg_ratios: [0.0]
+  lrs: [1.0e-3]
+  l2_regs: [1.0e-4]
+  epochs: 50
+  test_interval: 5
+  sep: "\t"
+  file_type: ".txt"
+  topk_valid: 20
+
+MLfav:
   data_path: './datasets'
   batch_size_train: 2048
   batch_size_test: 2048
