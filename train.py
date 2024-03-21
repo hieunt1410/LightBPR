@@ -369,7 +369,7 @@ def get_jaccard(pred, grd):
 def get_bundle_onehot(predub, gdub, bi_graph):
     cnt = 0
     jacs = 0
-    bi_graph = bi_graph.to_dense()
+    bi_graph = to_tensor(bi_graph).to_dense()
     for i in range(predub.shape[0]):
         if gdub[i].sum() != 0:
             cnt += 1
